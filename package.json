@@ -1,0 +1,18 @@
+{
+  "name": "gratis",
+  "version": "0.9.3",
+  "description": "",
+  "main": "gratis.cjs",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "md5": "^2.3.0",
+    "node-persist": "^3.1.0"
+  }
+}
