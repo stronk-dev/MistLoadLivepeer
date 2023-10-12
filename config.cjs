@@ -12,7 +12,7 @@ config.rtmpBase = "rtmp://localhost/live/live+"
 config.mistHost = "http://127.0.0.1:4242";
 // Preconfigured stream name in MistServer
 // If empty, pusheidon creates a new stream running local ffmpeg
-config.streamName = "videogen";
+config.streamName = "";
 // If mistHost is not on localhost, set it to true as you will require to login
 config.auth = false;
 // fill in username to your MistServer instance if auth == true
