@@ -11,7 +11,8 @@ const { randomUUID } = require("crypto");
 const boot = new Date().valueOf();
 console.log("Booted at epoch " + Math.floor(boot / 1000));
 const config = {
-  streamName: "",
+  sourceStream: "",
+  targetStream: "",
   mistHost: "",
   auth: false,
   mistHost: "",
@@ -22,7 +23,8 @@ const config = {
   initialPushes: 0,
   pushLimit: 0,
   pushHardLimit: 0,
-  isGeneratedTestStream: false,
+  createdSourceStream: false,
+  createdTargetStream: false,
   rtmpBase: "",
   genWidth: 800,
   genHeight: 600,
@@ -67,11 +69,19 @@ const shutdown = async () => {
   }
   // Shutdown source stream
   // Remove generated stream
-  if (config.isGeneratedTestStream) {
-    console.log("Shutting down source test stream '" + config.streamName + "'");
-    await mistApi.mistNukeStream(config.streamName);
-    console.log("Removing source test stream '" + config.streamName + "'");
-    await mistApi.mistDelStream(config.streamName);
+  if (config.createdSourceStream) {
+    console.log(
+      "Shutting down source test stream '" + config.sourceStream + "'"
+    );
+    await mistApi.mistNukeStream(config.sourceStream);
+    console.log("Removing source test stream '" + config.sourceStream + "'");
+    await mistApi.mistDelStream(config.sourceStream);
+  }
+  if (config.createdTargetStream) {
+    console.log("Shutting down target stream '" + config.targetStream + "'");
+    await mistApi.mistNukeStream(config.targetStream);
+    console.log("Removing target stream '" + config.targetStream + "'");
+    await mistApi.mistDelStream(config.targetStream);
   }
 };
 process.on("SIGTERM", async () => {
@@ -95,7 +105,8 @@ function sleep(ms) {
 // Overrides default user config
 function parseConfig() {
   return new Promise(async (resolve) => {
-    config.streamName = settings.streamName;
+    config.sourceStream = settings.sourceStream;
+    config.targetStream = settings.targetStream;
     config.mistHost = settings.mistHost;
     config.auth = settings.auth;
     config.mistUname = settings.mistUname;
@@ -116,25 +127,25 @@ function parseConfig() {
 function parseStreamInfo(streamInfoRaw) {
   streamInfo = null;
   return new Promise(async (resolve) => {
-    if (streamInfoRaw && streamInfoRaw[config.streamName]) {
+    if (streamInfoRaw && streamInfoRaw[config.sourceStream]) {
       streamInfo = {
-        status: streamInfoRaw[config.streamName][1],
-        health: streamInfoRaw[config.streamName][2],
-        outputs: streamInfoRaw[config.streamName][3],
-        clients: streamInfoRaw[config.streamName][4],
-        upbytes: streamInfoRaw[config.streamName][5],
-        zerounix: streamInfoRaw[config.streamName][6],
-        lastms: streamInfoRaw[config.streamName][7],
-        firstms: streamInfoRaw[config.streamName][8],
-        viewers: streamInfoRaw[config.streamName][9],
-        inputs: streamInfoRaw[config.streamName][10],
-        views: streamInfoRaw[config.streamName][11],
-        viewseconds: streamInfoRaw[config.streamName][12],
-        downbytes: streamInfoRaw[config.streamName][13],
-        packsent: streamInfoRaw[config.streamName][14],
-        packloss: streamInfoRaw[config.streamName][15],
-        packretrans: streamInfoRaw[config.streamName][16],
-        tracks: streamInfoRaw[config.streamName][17],
+        status: streamInfoRaw[config.sourceStream][1],
+        health: streamInfoRaw[config.sourceStream][2],
+        outputs: streamInfoRaw[config.sourceStream][3],
+        clients: streamInfoRaw[config.sourceStream][4],
+        upbytes: streamInfoRaw[config.sourceStream][5],
+        zerounix: streamInfoRaw[config.sourceStream][6],
+        lastms: streamInfoRaw[config.sourceStream][7],
+        firstms: streamInfoRaw[config.sourceStream][8],
+        viewers: streamInfoRaw[config.sourceStream][9],
+        inputs: streamInfoRaw[config.sourceStream][10],
+        views: streamInfoRaw[config.sourceStream][11],
+        viewseconds: streamInfoRaw[config.sourceStream][12],
+        downbytes: streamInfoRaw[config.sourceStream][13],
+        packsent: streamInfoRaw[config.sourceStream][14],
+        packloss: streamInfoRaw[config.sourceStream][15],
+        packretrans: streamInfoRaw[config.sourceStream][16],
+        tracks: streamInfoRaw[config.sourceStream][17],
       };
     }
     resolve("resolved");
@@ -150,7 +161,7 @@ function parsePushInfo(pushInfoRaw) {
       for (var index2 = 0; index2 < pushInfoRaw.length; index2++) {
         const newObj = {
           pushID: pushInfoRaw[index2][0],
-          streamName: pushInfoRaw[index2][1],
+          sourceStream: pushInfoRaw[index2][1],
           target: pushInfoRaw[index2][2],
           stats: pushInfoRaw[index2][5] || pushInfoRaw[index2][4], //< Livepeer's version has no logs, but some older version do @ index 4. So try both
         };
@@ -168,7 +179,7 @@ function refreshActivePushes() {
     if (pushInfo) {
       for (var index2 = 0; index2 < pushInfo.length; index2++) {
         // Skip pushes unrelated to gratis
-        if (pushInfo[index2].streamName != config.streamName) {
+        if (pushInfo[index2].sourceStream != config.sourceStream) {
           continue;
         }
         activePushes.push(pushInfo[index2].pushID);
@@ -183,7 +194,7 @@ function stopPushToTarget(target) {
   return new Promise(async (resolve) => {
     for (var index2 = 0; index2 < pushInfo.length; index2++) {
       // Skip pushes unrelated to gratis
-      if (pushInfo[index2].streamName != config.streamName) {
+      if (pushInfo[index2].sourceStream != config.sourceStream) {
         continue;
       }
       if (pushInfo[index2].target == target) {
@@ -207,9 +218,9 @@ function bootTestStream() {
       "Starting push to " +
         inactiveTargets[0] +
         " to boot stream " +
-        config.streamName
+        config.sourceStream
     );
-    await mistApi.mistAddPush(config.streamName, inactiveTargets[0]);
+    await mistApi.mistAddPush(config.sourceStream, inactiveTargets[0]);
     resolve("resolved");
   });
 }
@@ -218,18 +229,18 @@ function bootTestStream() {
 function waitForInput() {
   return new Promise(async (resolve) => {
     {
-      var mistStatsRaw = await mistApi.mistGetStreamInfo(config.streamName);
+      var mistStatsRaw = await mistApi.mistGetStreamInfo(config.sourceStream);
       while (true) {
         console.log(
-          "Waiting for stream '" + config.streamName + "' to become active..."
+          "Waiting for stream '" + config.sourceStream + "' to become active..."
         );
-        if (mistStatsRaw && mistStatsRaw[config.streamName]) {
-          if (mistStatsRaw[config.streamName][1] != "Online") {
+        if (mistStatsRaw && mistStatsRaw[config.sourceStream]) {
+          if (mistStatsRaw[config.sourceStream][1] != "Online") {
             console.log(
               "Stream '" +
-                config.streamName +
+                config.sourceStream +
                 "' is " +
-                mistStatsRaw[config.streamName][1]
+                mistStatsRaw[config.sourceStream][1]
             );
           } else {
             resolve("resolved");
@@ -237,7 +248,7 @@ function waitForInput() {
           }
         }
         await sleep(config.sleepMS);
-        mistStatsRaw = await mistApi.mistGetStreamInfo(config.streamName);
+        mistStatsRaw = await mistApi.mistGetStreamInfo(config.sourceStream);
       }
     }
   });
@@ -250,7 +261,7 @@ function printPushStats(target, active, elapsed, lastMB) {
   if (pushInfo) {
     for (var index2 = 0; index2 < pushInfo.length; index2++) {
       // Skip pushes unrelated to gratis
-      if (pushInfo[index2].streamName != config.streamName) {
+      if (pushInfo[index2].sourceStream != config.sourceStream) {
         continue;
       }
       const altTarget = target.replace("+", " "); //< TMP
@@ -336,7 +347,7 @@ function managePushes(totalUpMBPS, averageMPBS, elapsed) {
       }
       if (!found) {
         console.log("Starting push to " + thisTarget);
-        await mistApi.mistAddPush(config.streamName, thisTarget);
+        await mistApi.mistAddPush(config.sourceStream, thisTarget);
       }
     }
 
@@ -344,7 +355,7 @@ function managePushes(totalUpMBPS, averageMPBS, elapsed) {
     if (pushInfo) {
       for (var index = 0; index < pushInfo.length; index++) {
         // Skip pushes unrelated to gratis
-        if (pushInfo[index].streamName != config.streamName) {
+        if (pushInfo[index].sourceStream != config.sourceStream) {
           continue;
         }
         // Check if its in activeTargets
@@ -371,36 +382,61 @@ function managePushes(totalUpMBPS, averageMPBS, elapsed) {
 const run = async () => {
   const config = await parseConfig();
 
-  // Create a set of inactivePushes
-  for (var index = 0; index < config.pushHardLimit; index++) {
-    inactiveTargets.push(encodeURI(config.rtmpBase + randomUUID()));
-  }
-
-  // Exit if we have no target url's
-  if (!inactiveTargets.length) {
-    console.log("No targets to push towards...");
-    process.exit(0);
-  }
-
   // Get MistServer ready
   mistApi.configure(config.mistHost);
   // Authenticate with MistServer if it is not on localhost
   if (config.auth) {
     mistApi.setAcc(config.mistUname, config.mistPw);
   }
-  // If no streamName has been configured, run an ffmpeg script to stream
-  if (!config.streamName.length) {
-    config.isGeneratedTestStream = true;
-    config.streamName = "videogen" + boot;
-    console.log("Creating stream " + config.streamName);
-    await mistApi.mistAddStream(config.streamName, {
+  // If no source stream has been configured, run an ffmpeg script to stream
+  if (!config.sourceStream.length) {
+    config.createdSourceStream = true;
+    config.sourceStream = "videogen" + boot;
+    console.log("Creating source stream " + config.sourceStream);
+    await mistApi.mistAddTestStream(config.sourceStream, {
       width: config.genWidth,
       height: config.genHeight,
     });
   }
 
+  if (!config.rtmpBase.endsWith("/")) {
+    console.log(
+      "Rewriting stream base " +
+        config.rtmpBase +
+        " -> " +
+        config.rtmpBase +
+        "/"
+    );
+    config.rtmpBase += "/";
+  }
+
+  // If no target stream has been configured, create one using a local Livepeer Broadcasting node for transcoding
+  if (!config.targetStream.length) {
+    config.createdTargetStream = true;
+    config.targetStream = "target" + boot;
+    console.log("Creating target stream " + config.targetStream);
+    await mistApi.mistAddTargetStream(config.targetStream, {});
+    // Create a set of inactivePushes
+    for (var index = 0; index < config.pushHardLimit; index++) {
+      inactiveTargets.push(
+        encodeURI(config.rtmpBase + config.targetStream + "+" + randomUUID())
+      );
+    }
+  }else {
+    // Create a set of inactivePushes
+    for (var index = 0; index < config.pushHardLimit; index++) {
+      inactiveTargets.push(encodeURI(config.rtmpBase + randomUUID()));
+    }
+  }
+  // Exit if we have no target url's
+  if (!inactiveTargets.length) {
+    console.log("No targets to push towards...");
+    shutdown();
+    return;
+  }
+
   // Wait for the input stream to become available
-  if (config.isGeneratedTestStream) {
+  if (config.createdSourceStream) {
     await bootTestStream();
   }
   await waitForInput();

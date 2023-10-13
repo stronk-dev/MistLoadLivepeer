@@ -1,13 +1,21 @@
 var config = {};
 
 // Most import variable to set - all pushes will be sent to this address
-// defaults to use the local MistServer instance using stream name 'live'
 // Gratis generates a random UUID and appends it to this base
-config.rtmpBase = "rtmp://localhost/live/live+"
+config.rtmpBase = "rtmp://localhost/live/"
 
 
 /// --- Config Variables ---
 
+// Source buffer for outgoing pushes
+// Keep as "" to automatically create a test stream
+// Else fill in the stream name you want to use as source
+config.sourceStream = "";
+// Target stream name to push towards
+// Keep as "" to automatically add a strean
+//  preconfigured to use a local, stock Livepeer Broadcaster node
+// When set to anything else, it will simply use the rtmpBase as target
+config.targetStream = ""
 config.sleepMS = 4000;                // MS between each cycle of checking stream status'
 config.maxBandwidthMBPS = 4.20;       // Will start/stop pushes to stay under this limit of bandwidth usage
 config.initialPushes = 2;             // Initial amount of pushes to start
@@ -19,11 +27,6 @@ config.genHeight = 1080;
 
 
 /// --- MistServer connection config ---
-
-// Preconfigured stream name in MistServer
-// If you want to reuse an existing stream, set it's stream name here
-// If empty, gratis creates a new stream using FFMPEG on the local machine
-config.streamName = "";
 
 // Settings below shouldn't be changed just yet, but will be used to allow remote management later on
 

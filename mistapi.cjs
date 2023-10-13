@@ -65,16 +65,14 @@ async function mistAddPush(stream, target) {
 }
 
 async function mistNukeStream(stream) {
-  await get(
-    '/api2?command={"nuke_stream":["' + stream + '"]}'
-  );
+  await get('/api2?command={"nuke_stream":["' + stream + '"]}');
 }
 
 async function mistStopPush(push) {
   await get('/api2?command={"push_stop":' + push + "}");
 }
 
-async function mistAddStream(stream, cfg) {
+async function mistAddTestStream(stream, cfg) {
   const script = encodeURIComponent(
     "ts-exec:ffmpeg -hide_banner -re -f lavfi -i aevalsrc=if(eq(floor(t)\\\\,ld(2))\\\\,st(0\\\\,random(4)*3000+1000))\\\\;st(2\\\\,floor(t)+1)\\\\;st(1\\\\,mod(t\\\\,1))\\\\;(0.6*sin(1*ld(0)*ld(1))+0.4*sin(2*ld(0)*ld(1)))*exp(-4*ld(1))[out1];testsrc=s=" +
       cfg.width +
@@ -92,6 +90,17 @@ async function mistAddStream(stream, cfg) {
       '": {"source": "' +
       script +
       '"}}}'
+  );
+}
+
+async function mistAddTargetStream(stream, cfg) {
+  await get(
+    '/api2?command={"addstream":{"' +
+      stream +
+      '":{ "debug":4, "name":"' +
+      stream +
+      '", "processes":[{ "exit_unmask":false, "hardcoded_broadcasters":"[{\'address\':\'http://localhost:1937\'}]", "process":"Livepeer", "restart_delay":5000, "restart_type":"fixed", "target_mask":"5", "target_profiles":[ { "bitrate":250000, "fps":15, "height":480, "name":"480p", "profile":"H264ConstrainedHigh", "track_inhibit":"video=<850x480", "x-LSP-name":"480p" }, { "bitrate":1000000, "fps":25, "height":720, "name":"720p", "profile":"H264ConstrainedHigh", "track_inhibit":"video=<1281x720", "x-LSP-name":"720p" } ], "track_inhibit":"video=<850x480", "x-LSP-name":"720p and 480p transcode" } ]' +
+      ', "realtime":false, "source":"push://", "stop_sessions":false }}'
   );
 }
 
@@ -127,7 +136,8 @@ module.exports = {
   mistAddPush,
   mistNukeStream,
   mistStopPush,
-  mistAddStream,
+  mistAddTestStream,
+  mistAddTargetStream,
   mistDelStream,
   mistGetPushes,
   mistGetStreamInfo,

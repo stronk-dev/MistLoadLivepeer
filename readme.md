@@ -22,11 +22,12 @@ First time setup:
 
     Configure a stream to us as source. You can add a VOD file or set up a push input to stream into. If you do not configure anything, a a low bitrate 720p infinite test stream will be created using ffmpeg on MistServer's host machine
 
-  - A RTMP target to push towards \
+  - (Optionally) a RTMP target to push towards \
+    If you do not configure anything, it will assume the Broadcaster node is running on the local machine \
+    It will automatically set up MistServer to transcode using the local Broadcaster node
+
+    You can also set a custom RTMP target to push towards instead \
     NOTE: Direct Livepeer Broadcaster ingest is untested and probably does not work (yet) \
-    \
-    If you want to push to a MistServer instance it needs a stream which is configured to use a Livepeer Broadcaster for transcoding. \
-    Create a stream called 'live' with source 'push://'. This is the default stream name gratis uses. Configure a Livepeer transcode process in order to hook up a local Broadcaster node
 
 Note:
   - This is experimental software and it might be possible that a push does not get stopped on shutdown \
