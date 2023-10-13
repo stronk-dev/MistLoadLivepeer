@@ -271,7 +271,7 @@ function printPushStats(target, active, elapsed, lastMB) {
     }
   }
   // Only show calculated mbps from mediatime for generated local test streams
-  var mbpsString = "(" + uploadMBPS.toFixed(2) + " MB/s) ";
+  var mbpsString = "(" + uploadMBPS.toFixed(3) + " MB/s) ";
   // Add inactive tag if the target is not in activeTargets
   let inactiveStr = active ? "" : " (inactive)";
   console.log(
@@ -478,11 +478,11 @@ const run = async () => {
       "Uploaded " +
         totalUpMB.toFixed(2) +
         " MB (rate " +
-        totalUpMBPS.toFixed(2) +
+        totalUpMBPS.toFixed(3) +
         "/" +
-        config.maxBandwidthMBPS.toFixed(2) +
+        config.maxBandwidthMBPS.toFixed(3) +
         " MB/s, averaging " +
-        averageMPBS.toFixed(2) +
+        averageMPBS.toFixed(3) +
         " MB/s per stream)\n"
     );
     // Check if any pushes need to be started or stopped
