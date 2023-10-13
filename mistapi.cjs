@@ -99,7 +99,7 @@ async function mistAddTargetStream(stream, cfg) {
       stream +
       '":{ "debug":4, "name":"' +
       stream +
-      '", "processes":[{ "exit_unmask":false, "hardcoded_broadcasters":"[{\'address\':\'http://localhost:1937\'}]", "process":"Livepeer", "restart_delay":5000, "restart_type":"fixed", "target_mask":"5", "target_profiles":[ { "bitrate":250000, "fps":15, "height":480, "name":"480p", "profile":"H264ConstrainedHigh", "track_inhibit":"video=<850x480", "x-LSP-name":"480p" }, { "bitrate":1000000, "fps":25, "height":720, "name":"720p", "profile":"H264ConstrainedHigh", "track_inhibit":"video=<1281x720", "x-LSP-name":"720p" } ], "track_inhibit":"video=<850x480", "x-LSP-name":"720p and 480p transcode" } ]' +
+      '", "processes":[{ "exit_unmask":false, "hardcoded_broadcasters":"[{\'address\':\'http://localhost:1937\'}]", "process":"Livepeer", "restart_delay":5000, "restart_type":"fixed", "target_mask":"5", "target_profiles":' + JSON.stringify(cfg.profiles) +', "x-LSP-name":"Livepeer Transcoding" } ]' +
       ', "realtime":false, "source":"push://", "stop_sessions":false }}'
   );
 }

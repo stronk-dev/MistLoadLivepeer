@@ -28,6 +28,7 @@ const config = {
   rtmpBase: "",
   genWidth: 800,
   genHeight: 600,
+  profiles: [],
 };
 let pushInfo = null;
 let streamInfo = {
@@ -119,6 +120,7 @@ function parseConfig() {
     config.rtmpBase = settings.rtmpBase;
     config.genWidth = settings.genWidth;
     config.genHeight = settings.genHeight;
+    config.profiles = settings.profiles;
     resolve(config);
   });
 }
@@ -415,14 +417,16 @@ const run = async () => {
     config.createdTargetStream = true;
     config.targetStream = "target" + boot;
     console.log("Creating target stream " + config.targetStream);
-    await mistApi.mistAddTargetStream(config.targetStream, {});
+    await mistApi.mistAddTargetStream(config.targetStream, {
+      profiles: config.profiles,
+    });
     // Create a set of inactivePushes
     for (var index = 0; index < config.pushHardLimit; index++) {
       inactiveTargets.push(
         encodeURI(config.rtmpBase + config.targetStream + "+" + randomUUID())
       );
     }
-  }else {
+  } else {
     // Create a set of inactivePushes
     for (var index = 0; index < config.pushHardLimit; index++) {
       inactiveTargets.push(encodeURI(config.rtmpBase + randomUUID()));
