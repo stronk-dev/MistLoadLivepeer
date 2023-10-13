@@ -23,27 +23,17 @@
           }, {
             "connector":"FLV"
           }, {
-            "connector":"H264"
-          }, {
             "connector":"HLS"
           }, {
             "connector":"HTTP"
           }, {
             "connector":"HTTPTS"
           }, {
-            "connector":"JSON"
-          }, {
             "connector":"MP4"
           }, {
             "connector":"RTMP"
           }, {
             "connector":"RTSP"
-          }, {
-            "connector":"SDP"
-          }, {
-            "connector":"TSRIST"
-          }, {
-            "connector":"TSSRT"
           }, {
             "connector":"WebRTC"
           }
@@ -68,6 +58,7 @@
         "maxspeed":0,
         "wait":3
       },
-      "streams":null,
+      "streams":{},
+      "ui_settings":null,
       "variables":null
     }
