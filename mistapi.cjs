@@ -81,6 +81,10 @@ async function mistAddStream(stream) {
   );
 }
 
+async function mistDelStream(stream) {
+  await get('/api2?command={"deletestream":"' + stream + '"}');
+}
+
 async function mistGetPushes() {
   const ret = await get('/api2?command={"push_list":""}');
   if (!ret?.data?.push_list) {
@@ -109,6 +113,7 @@ module.exports = {
   mistAddPush,
   mistStopPush,
   mistAddStream,
+  mistDelStream,
   mistGetPushes,
   mistGetStreamInfo,
 };

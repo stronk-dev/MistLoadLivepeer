@@ -54,20 +54,29 @@ const inactiveTargets = []; //< Target RTMP uri's we are currently not pushing t
 var activePushes = [];
 
 // Stop all active pushes when we have to shutdown
-process.on('SIGTERM', async () => {
-  console.info('SIGTERM signal received.');
+const shutdown = async () => {
+  // Refresh pushes in case we've shutdown just after adding a new push
+  const mistPushesRaw = await mistApi.mistGetPushes();
+  await parsePushInfo(mistPushesRaw);
+  await refreshActivePushes();
+  // Stop all active pushes
   for (var index = 0; index < activePushes.length; index++) {
     console.log("Stopping push " + activePushes[index]);
     await mistApi.mistStopPush(activePushes[index]);
   }
+  // Remove generated stream
+  if (config.isGeneratedTestStream){
+    await mistApi.mistDelStream(config.streamName);
+  }
+}
+process.on('SIGTERM', async () => {
+  console.info('SIGTERM signal received.');
+  await shutdown();
   process.exit(0);
 });
 process.on('SIGINT', async () => {
   console.info('SIGINT signal received.');
-  for (var index = 0; index < activePushes.length; index++) {
-    console.log("Stopping push " + activePushes[index]);
-    await mistApi.mistStopPush(activePushes[index]);
-  }
+  await shutdown();
   process.exit(0);
 });
 
