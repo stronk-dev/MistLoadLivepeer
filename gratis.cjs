@@ -1,28 +1,7 @@
 /*
-Gratis: load tester for a local Livepeer Broadcaster node or whatever
-  It duplicates an existing stream to do this, if you didn't configure one it will generate a test stream
 
-Prerequisites: 
-  - MistServer running somewhere
-    It is recommended to just run mistserver/MistController in a separate terminal
-    Make sure to configure it for transcoding
-  - (Optionally) a preconfigured stream in MistServer
-    There's a webinterface to configure streams at mistHost (usually http://127.0.0.1:4242)
-    If unset it will generate a test stream using ffmpeg on MistServer's host machine
-    This generated stream is in 720p or something and a fairly low bitrate
+  Gratis: load tester for a local Livepeer Broadcaster node or whatever
 
-Notes:
-  - this is experimental software and it might be possible that a push to your does not get stopped on shutdown
-    make sure to check your mistHost's push page every now and then to check on it
-
-Todos:
-  Config is just applied as is
-  - Add sanity checks
-  - Only apply if the setting exists, else use a default value
-
-  Mist authorization is not checked on
-  - Returns a authorize flag which we should check in case auth does not work 
-  
 */
 
 
@@ -100,7 +79,7 @@ function sleep(ms) {
   });
 }
 
-// Overrides default config user config
+// Overrides default user config
 function parseConfig() {
   return new Promise(async resolve => {
     config.streamName = settings.streamName;
@@ -118,7 +97,7 @@ function parseConfig() {
   });
 }
 
-// Parses MistServer stream info object into streamInfo
+// Parses MistServer stream info object into tje streamInfo JSON object
 function parseStreamInfo(streamInfoRaw) {
   streamInfo = null;
   return new Promise(async resolve => {
@@ -147,7 +126,7 @@ function parseStreamInfo(streamInfoRaw) {
   });
 }
 
-// Parses MistServer push info list into pushInfo
+// Parses MistServer push info list into the pushInfo JSON object
 function parsePushInfo(pushInfoRaw) {
   pushInfo = null;
   return new Promise(async resolve => {
@@ -158,7 +137,7 @@ function parsePushInfo(pushInfoRaw) {
           pushID: pushInfoRaw[index2][0],
           streamName: pushInfoRaw[index2][1],
           target: pushInfoRaw[index2][2],
-          stats: pushInfoRaw[index2][5] || pushInfoRaw[index2][4] //< Livepeer's version has no logs, some older version do @ index 4
+          stats: pushInfoRaw[index2][5] || pushInfoRaw[index2][4] //< Livepeer's version has no logs, but some older version do @ index 4. So try both
         };
         pushInfo.push(newObj);
       }
@@ -267,7 +246,7 @@ function printPushStats(target, active) {
   return uploadedMB;
 }
 
-// 
+// Makes sure pushes are started/stopped and prints a summary
 function managePushes(totalUpMBPS, averageMPBS, elapsed) {
   return new Promise(async resolve => {
     // Adjust pushLimit based on bandwidth usage and config
