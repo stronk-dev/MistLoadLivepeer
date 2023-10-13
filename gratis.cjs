@@ -454,7 +454,7 @@ const run = async () => {
     inactiveTargets.splice(randIndex, 1);
     console.log("Starting push to " + thisTarget);
     activeTargets.push(thisTarget);
-    await mistApi.mistAddPush(config.streamName, thisTarget);
+    await mistApi.mistAddPush(config.sourceStream, thisTarget);
   }
 
   // Run the main loop until someone kills the process
@@ -465,7 +465,7 @@ const run = async () => {
     var totalUpMB = 0;
     var totalUpMBPS = 0;
     // Refresh data
-    const mistStatsRaw = await mistApi.mistGetStreamInfo(config.streamName);
+    const mistStatsRaw = await mistApi.mistGetStreamInfo(config.sourceStream);
     const mistPushesRaw = await mistApi.mistGetPushes();
     await parseStreamInfo(mistStatsRaw);
     await parsePushInfo(mistPushesRaw);
@@ -479,7 +479,7 @@ const run = async () => {
     if (!streamInfo || streamInfo.status != "Online") {
       console.log(
         "Stream '" +
-          config.streamName +
+          config.sourceStream +
           "' is inactive. Manually check stream status in " +
           config.mistHost
       );
@@ -491,7 +491,7 @@ const run = async () => {
     console.log("Running for " + totalElapsed.toFixed(1) + " seconds");
     // Print stream stats
     console.log(
-      "Stream " + config.streamName + " is " + streamInfo.status + "\n"
+      "Stream " + config.sourceStream + " is " + streamInfo.status + "\n"
     );
     // Print push stats
     for (var idx = 0; idx < activeTargets.length; idx++) {
