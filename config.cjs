@@ -36,7 +36,7 @@ config.pushLimit = 10; // Max amount of concurrent pushes to allow
 /// --- Settings you probably don't want to touch ---
 
 // All pushes will be sent to this address
-// Gratis generates a random UUID and appends it to this base
+// MistLoadLivepeer generates a random UUID and appends it to this base
 config.rtmpBase = "rtmp://localhost/live/";
 
 // Source buffer for outgoing pushes

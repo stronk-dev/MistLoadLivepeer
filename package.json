@@ -1,8 +1,8 @@
 {
-  "name": "gratis",
+  "name": "MistLoadLivepeer",
   "version": "0.9.3",
   "description": "",
-  "main": "gratis.cjs",
+  "main": "MistLoadLivepeer.cjs",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

@@ -1,10 +1,10 @@
-# gratis
+# MistLoadLivepeer
 Keeps a set amount of streams active on a local MistServer instance \
 Does not check stream health yet. This tool currently only applies load to the Broadcaster node using MistServer \
 Requires a Livepeer Broadcaster node already running locally (unless you're overriding the default settings to stream somewhere else)
 
 Check out this awesome drawing made in paint:
-![secrets](https://github.com/stronk-dev/gratis/blob/master/images/secrets.png)
+![secrets](https://github.com/stronk-dev/MistLoadLivepeer/blob/master/images/secrets.png)
 
 
 By default it auto-configures method 3 of above image. You can configure the transcode profile and amount of streams to push in `config.cjs`
@@ -33,7 +33,7 @@ First time setup:
 run `mistserver/MistController --config mistserver/config.json` in a terminal to boot up MistServer. Unless you already have a local MistServer instance running
 
 
-run `node gratis.cjs` to start the load test. It will slowly start streams from the initial amount up to the configured limit
+run `node MistLoadLivepeer.cjs` to start the load test. It will slowly start streams from the initial amount up to the configured limit
 
 Open MistServer's interface to browse through the streams and transcoded renditions \
 By default this page is available at `http://127.0.0.1:4242` with username `test` and password `test` 

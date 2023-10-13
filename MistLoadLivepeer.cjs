@@ -1,6 +1,6 @@
 /*
 
-  Gratis: load tester for a local Livepeer Broadcaster node or whatever
+  MistLoadLivepeer: load tester for a local Livepeer Broadcaster node or whatever
 
 */
 
@@ -180,7 +180,7 @@ function refreshActivePushes() {
   return new Promise(async (resolve) => {
     if (pushInfo) {
       for (var index2 = 0; index2 < pushInfo.length; index2++) {
-        // Skip pushes unrelated to gratis
+        // Skip pushes unrelated to MistLoadLivepeer
         if (pushInfo[index2].sourceStream != config.sourceStream) {
           continue;
         }
@@ -195,7 +195,7 @@ function refreshActivePushes() {
 function stopPushToTarget(target) {
   return new Promise(async (resolve) => {
     for (var index2 = 0; index2 < pushInfo.length; index2++) {
-      // Skip pushes unrelated to gratis
+      // Skip pushes unrelated to MistLoadLivepeer
       if (pushInfo[index2].sourceStream != config.sourceStream) {
         continue;
       }
@@ -262,7 +262,7 @@ function printPushStats(target, active, elapsed, lastMB) {
   let uploadMBPS = 0;
   if (pushInfo) {
     for (var index2 = 0; index2 < pushInfo.length; index2++) {
-      // Skip pushes unrelated to gratis
+      // Skip pushes unrelated to MistLoadLivepeer
       if (pushInfo[index2].sourceStream != config.sourceStream) {
         continue;
       }
@@ -356,7 +356,7 @@ function managePushes(totalUpMBPS, averageMPBS, elapsed) {
     // Stop pushes in pushInfo which are not in activeTargets
     if (pushInfo) {
       for (var index = 0; index < pushInfo.length; index++) {
-        // Skip pushes unrelated to gratis
+        // Skip pushes unrelated to MistLoadLivepeer
         if (pushInfo[index].sourceStream != config.sourceStream) {
           continue;
         }
