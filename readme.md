@@ -18,9 +18,10 @@ First time setup:
     It is recommended to just run mistserver/MistController in a separate terminal
 
   - (Optionally) a preconfigured stream on the local MistServer to use as source \
-    There's a webinterface to configure streams at mistHost (usually http://127.0.0.1:4242)
+    If you do not configure anything, a a low bitrate 720p infinite test stream will be created using ffmpeg on MistServer's host machine \
+    Otherwise there's a webinterface to configure streams at mistHost (usually http://127.0.0.1:4242)
 
-    Configure a stream to us as source. You can add a VOD file or set up a push input to stream into. If you do not configure anything, a a low bitrate 720p infinite test stream will be created using ffmpeg on MistServer's host machine
+    Configure a stream to us as source. You can add a VOD file or set up a push input to stream into
 
   - (Optionally) a RTMP target to push towards \
     If you do not configure anything, it will assume the Broadcaster node is running on the local machine \

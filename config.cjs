@@ -1,30 +1,12 @@
 var config = {};
 
-// Most import variable to set - all pushes will be sent to this address
-// Gratis generates a random UUID and appends it to this base
-config.rtmpBase = "rtmp://localhost/live/";
-
-/// --- Config Variables ---
-
-// Source buffer for outgoing pushes
-// Keep as "" to automatically create a test stream
-// Else fill in the stream name you want to use as source
-config.sourceStream = "";
-// Target stream name to push towards
-// Keep as "" to automatically add a strean
-//  preconfigured to use a local, stock Livepeer Broadcaster node
-// When set to anything else, it will simply use the rtmpBase as target
-config.targetStream = "";
-config.sleepMS = 4000; // MS between each cycle of checking stream status'
-config.maxBandwidthMBPS = 4.2; // Will start/stop pushes to stay under this limit of bandwidth usage
-config.initialPushes = 2; // Initial amount of pushes to start
-config.pushLimit = 10; // Max amount of total pushes to allow
-
-// When using a generated test stream, set it's properties here
+// Properties of generated test stream
+// NOTE: this is only enabled if config.sourceStream remains empty
 config.genWidth = 1920;
 config.genHeight = 1080;
 
-// Transcode Profile to set when autoconfiguring a local MistServer instance
+// Transcode profiles to send to the local Broadcaster node
+// NOTE: this is only enabled if config.targetStream remains empty
 config.profiles = [
   {
     bitrate: 250000,
@@ -45,6 +27,27 @@ config.profiles = [
     "x-LSP-name": "720p",
   },
 ];
+
+config.sleepMS = 4000; // MS between each cycle of checking stream status'
+config.maxBandwidthMBPS = 4.2; // Will start/stop pushes to stay under this limit of bandwidth usage
+config.initialPushes = 2; // Initial amount of pushes to start out with
+config.pushLimit = 10; // Max amount of concurrent pushes to allow
+
+/// --- Settings you probably don't want to touch ---
+
+// All pushes will be sent to this address
+// Gratis generates a random UUID and appends it to this base
+config.rtmpBase = "rtmp://localhost/live/";
+
+// Source buffer for outgoing pushes
+// Keep as "" to automatically create a test stream
+// Else fill in the stream name you want to use as source
+config.sourceStream = "";
+
+// Target stream name to push towards
+// Keep as "" to automatically add a stream which connects to a local, stock Livepeer Broadcaster node
+// When set to anything else, it will simply use the rtmpBase as target
+config.targetStream = "";
 
 /// --- MistServer connection config ---
 
