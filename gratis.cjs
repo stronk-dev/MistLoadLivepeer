@@ -62,11 +62,15 @@ const shutdown = async () => {
   await refreshActivePushes();
   // Stop all active pushes
   for (var index = 0; index < activePushes.length; index++) {
-    console.log("Stopping push " + activePushes[index]);
+    console.log("Stopping push id " + activePushes[index]);
     await mistApi.mistStopPush(activePushes[index]);
   }
+  // Shutdown source stream
   // Remove generated stream
   if (config.isGeneratedTestStream) {
+    console.log("Shutting down source test stream '" + config.streamName + "'");
+    await mistApi.mistNukeStream(config.streamName);
+    console.log("Removing source test stream '" + config.streamName + "'");
     await mistApi.mistDelStream(config.streamName);
   }
 };

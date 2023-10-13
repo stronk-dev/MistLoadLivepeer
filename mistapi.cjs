@@ -64,6 +64,12 @@ async function mistAddPush(stream, target) {
   );
 }
 
+async function mistNukeStream(stream) {
+  await get(
+    '/api2?command={"nuke_stream":["' + stream + '"]}'
+  );
+}
+
 async function mistStopPush(push) {
   await get('/api2?command={"push_stop":' + push + "}");
 }
@@ -119,6 +125,7 @@ module.exports = {
   configure,
   setAcc,
   mistAddPush,
+  mistNukeStream,
   mistStopPush,
   mistAddStream,
   mistDelStream,
