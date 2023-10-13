@@ -393,7 +393,7 @@ const run = async () => {
   // If no source stream has been configured, run an ffmpeg script to stream
   if (!config.sourceStream.length) {
     config.createdSourceStream = true;
-    config.sourceStream = "videogen" + boot;
+    config.sourceStream = "source-" + boot;
     console.log("Creating source stream " + config.sourceStream);
     await mistApi.mistAddTestStream(config.sourceStream, {
       width: config.genWidth,
@@ -415,7 +415,7 @@ const run = async () => {
   // If no target stream has been configured, create one using a local Livepeer Broadcasting node for transcoding
   if (!config.targetStream.length) {
     config.createdTargetStream = true;
-    config.targetStream = "target" + boot;
+    config.targetStream = "target-" + boot;
     console.log("Creating target stream " + config.targetStream);
     await mistApi.mistAddTargetStream(config.targetStream, {
       profiles: config.profiles,
