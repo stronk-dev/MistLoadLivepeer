@@ -29,6 +29,7 @@ const config = {
   genWidth: 800,
   genHeight: 600,
   profiles: [],
+  broadcasterUri: "",
 };
 let pushInfo = null;
 let streamInfo = {
@@ -121,6 +122,7 @@ function parseConfig() {
     config.genWidth = settings.genWidth;
     config.genHeight = settings.genHeight;
     config.profiles = settings.profiles;
+    config.broadcasterUri = settings.broadcasterUri;
     resolve(config);
   });
 }
@@ -419,6 +421,7 @@ const run = async () => {
     console.log("Creating target stream " + config.targetStream);
     await mistApi.mistAddTargetStream(config.targetStream, {
       profiles: config.profiles,
+      broadcasterUri: config.broadcasterUri,
     });
     // Create a set of inactivePushes
     for (var index = 0; index < config.pushHardLimit; index++) {

@@ -99,7 +99,11 @@ async function mistAddTargetStream(stream, cfg) {
       stream +
       '":{ "debug":4, "name":"' +
       stream +
-      '", "processes":[{ "exit_unmask":false, "hardcoded_broadcasters":"[{\'address\':\'http://localhost:1937\'}]", "process":"Livepeer", "restart_delay":5000, "restart_type":"fixed", "target_mask":"5", "target_profiles":' + JSON.stringify(cfg.profiles) +', "x-LSP-name":"Livepeer Transcoding" } ]' +
+      '", "processes":[{ "exit_unmask":false, "hardcoded_broadcasters":"[{\'address\':\'' +
+      cfg.broadcasterUri +
+      '\'}]", "process":"Livepeer", "restart_delay":5000, "restart_type":"fixed", "target_mask":"5", "target_profiles":' +
+      JSON.stringify(cfg.profiles) +
+      ', "x-LSP-name":"Livepeer Transcoding" } ]' +
       ', "realtime":false, "source":"push://", "stop_sessions":false }}'
   );
 }

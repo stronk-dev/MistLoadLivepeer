@@ -7,7 +7,7 @@ Check out this awesome drawing made in paint:
 ![secrets](https://github.com/stronk-dev/MistLoadLivepeer/blob/master/images/secrets.png)
 
 
-By default it auto-configures method 3 of above image. You can configure the transcode profile and amount of streams to push in `config.cjs`
+By default it auto-configures MistServer for method 3 of above image. You can configure the transcode profile and amount of streams to push in `config.cjs`. By default it uses `http://localhost:1937` as the Livepeer Broadcaster HTTP endpoint
 
 ### Prep
 `nodejs` and either `npm` or `yarn` need to be installed in order to install dependencies and run the script \
