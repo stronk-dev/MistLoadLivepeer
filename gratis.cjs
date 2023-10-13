@@ -7,7 +7,6 @@
 
 const settings = require('./config.cjs');
 const mistApi = require('./mistapi.cjs');
-const storage = require('node-persist');
 const { randomUUID } = require('crypto');
 
 const boot = new Date().valueOf();
@@ -317,15 +316,6 @@ function managePushes(totalUpMBPS, averageMPBS, elapsed) {
 
 
 const run = async () => {
-  await storage.init({
-    stringify: JSON.stringify,
-    parse: JSON.parse,
-    encoding: 'utf8',
-    logging: false,
-    ttl: false,
-    forgiveParseErrors: false
-  });
-  // Parse config and init the list of available accounts
   const config = await parseConfig();
 
   // Create a set of inactivePushes
