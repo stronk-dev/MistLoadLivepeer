@@ -8,7 +8,7 @@ config.rtmpBase = "rtmp://localhost/live/live+"
 /// --- MistServer connection config ---
 
 
-// Edit this if MistServer is running on a remote server
+// Edit this if MistServer is running on a remote server - not supported for now
 config.mistHost = "http://127.0.0.1:4242";
 // Preconfigured stream name in MistServer
 // If empty, pusheidon creates a new stream running local ffmpeg
@@ -17,7 +17,7 @@ config.streamName = "";
 config.auth = false;
 // fill in username to your MistServer instance if auth == true
 config.mistUname = "";
-// fill in md5(password) to your MistServer instance if auth == true
+// fill in password to your MistServer instance if auth == true
 config.mistPw = "";
 
 

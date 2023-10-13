@@ -364,7 +364,7 @@ const run = async () => {
   mistApi.configure(config.mistHost);
   // Authenticate with MistServer if it is not on localhost
   if (config.auth) {
-    await mistApi.authMist(config.mistUname, config.mistPw);
+    mistApi.setAcc(config.mistUname, config.mistPw);
   }
   // If no streamName has been configured, run an ffmpeg script to stream
   if (!config.streamName.length) {
