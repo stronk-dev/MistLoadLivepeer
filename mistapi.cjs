@@ -68,9 +68,17 @@ async function mistStopPush(push) {
   await get('/api2?command={"push_stop":' + push + "}");
 }
 
-async function mistAddStream(stream) {
+async function mistAddStream(stream, cfg) {
   const script = encodeURIComponent(
-    "ts-exec:ffmpeg -hide_banner -re -f lavfi -i aevalsrc=if(eq(floor(t)\\\\,ld(2))\\\\,st(0\\\\,random(4)*3000+1000))\\\\;st(2\\\\,floor(t)+1)\\\\;st(1\\\\,mod(t\\\\,1))\\\\;(0.6*sin(1*ld(0)*ld(1))+0.4*sin(2*ld(0)*ld(1)))*exp(-4*ld(1))[out1];testsrc=s=640x480,drawtext=borderw=5:fontcolor=white:fontsize=30:text='%{localtime}/%{pts\\\\:hms}':x=w-text_w-w/8:y=\\\\(h-text_h-line_h\\\\)/4,drawtext=borderw=5:fontcolor=white:fontsize=30:text='640x480':x=w-text_w-w/8:y=\\\\(h-text_h-line_h\\\\)/4+text_h+line_h[out0] -f lavfi -i aevalsrc=if(eq(floor(t)\\\\,ld(2))\\\\,st(0\\\\,random(4)*3000+1000))\\\\;st(2\\\\,floor(t)+1)\\\\;st(1\\\\,mod(t\\\\,1))\\\\;(0.6*sin(1*ld(0)*ld(1))+0.4*sin(2*ld(0)*ld(1)))*exp(-4*ld(1))[out1];testsrc=s=800x600,drawtext=borderw=5:fontcolor=white:fontsize=30:text='%{localtime}/%{pts\\\\:hms}':x=w-text_w-w/8:y=\\\\(h-text_h-line_h\\\\)/4,drawtext=borderw=5:fontcolor=white:fontsize=30:text='800x600':x=w-text_w-w/8:y=\\\\(h-text_h-line_h\\\\)/4+text_h+line_h[out0] -f lavfi -i aevalsrc=if(eq(floor(t)\\\\,ld(2))\\\\,st(0\\\\,random(4)*3000+1000))\\\\;st(2\\\\,floor(t)+1)\\\\;st(1\\\\,mod(t\\\\,1))\\\\;(0.6*sin(1*ld(0)*ld(1))+0.4*sin(2*ld(0)*ld(1)))*exp(-4*ld(1))[out1];testsrc=s=1024x768,drawtext=borderw=5:fontcolor=white:fontsize=30:text='%{localtime}/%{pts\\\\:hms}':x=w-text_w-w/8:y=\\\\(h-text_h-line_h\\\\)/4,drawtext=borderw=5:fontcolor=white:fontsize=30:text='1024x768':x=w-text_w-w/8:y=\\\\(h-text_h-line_h\\\\)/4+text_h+line_h[out0] -map a:0 -c:a:0 aac -strict -2 -ac:0 2 -map 0:v -c:v:0 h264 -pix_fmt yuv420p -profile:v:0 baseline -g:v:0 125 -map 1:v -c:v:1 h264 -profile:v:1 baseline -g:v:1 125  -map 2:v -c:v:2 h264 -profile:v:2 baseline -g:v:2 125 -f mpegts -"
+    "ts-exec:ffmpeg -hide_banner -re -f lavfi -i aevalsrc=if(eq(floor(t)\\\\,ld(2))\\\\,st(0\\\\,random(4)*3000+1000))\\\\;st(2\\\\,floor(t)+1)\\\\;st(1\\\\,mod(t\\\\,1))\\\\;(0.6*sin(1*ld(0)*ld(1))+0.4*sin(2*ld(0)*ld(1)))*exp(-4*ld(1))[out1];testsrc=s=" +
+      cfg.width +
+      "x" +
+      cfg.height +
+      ",drawtext=borderw=5:fontcolor=white:fontsize=30:text='%{localtime}/%{pts\\\\:hms}':x=w-text_w-w/8:y=\\\\(h-text_h-line_h\\\\)/4,drawtext=borderw=5:fontcolor=white:fontsize=30:text='" +
+      cfg.width +
+      "x" +
+      cfg.height +
+      "':x=w-text_w-w/8:y=\\\\(h-text_h-line_h\\\\)/4+text_h+line_h[out0] -acodec aac -vcodec h264 -strict -2 -pix_fmt yuv420p -profile:v baseline -level 3.0 -f mpegts -"
   );
   await get(
     '/api2?command={"addstream":{"' +

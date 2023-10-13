@@ -4,10 +4,9 @@
 
 */
 
-
-const settings = require('./config.cjs');
-const mistApi = require('./mistapi.cjs');
-const { randomUUID } = require('crypto');
+const settings = require("./config.cjs");
+const mistApi = require("./mistapi.cjs");
+const { randomUUID } = require("crypto");
 
 const boot = new Date().valueOf();
 console.log("Booted at epoch " + Math.floor(boot / 1000));
@@ -25,26 +24,28 @@ const config = {
   pushHardLimit: 0,
   isGeneratedTestStream: false,
   rtmpBase: "",
+  genWidth: 800,
+  genHeight: 600,
 };
 let pushInfo = null;
 let streamInfo = {
-  status: "",      // Current stream status in human readable format
-  health: {},      // Stream health object, identical to payload of STREAM_BUFFER health data
-  outputs: [],     // Current outputs count
-  clients: 0,      // Current count of connected clients (viewers+inputs+outputs)
-  upbytes: 0,      // Total bytes uploaded since stream start
-  zerounix: 0,     // Unix time in seconds of timestamp epoch (zero point), if known
-  lastms: 0,       // Newest/last (currently) available timestamp in milliseconds
-  firstms: 0,      // Oldest/first requestable timestamp in milliseconds
-  viewers: 0,      // Current viewers count
-  inputs: 0,       // Current inputs count
-  views: 0,        // Total viewer session count since stream start
-  viewseconds: 0,  // Total sum of seconds watched by viewers since stream start
-  downbytes: 0,    // Total bytes downloaded since stream start
-  packsent: 0,     // Total packets sent since stream start
-  packloss: 0,     // Total packets lost since stream start
-  packretrans: 0,  // Total packets retransmitted since stream start
-  tracks: 0,       // Count of currently valid tracks in this stream
+  status: "", // Current stream status in human readable format
+  health: {}, // Stream health object, identical to payload of STREAM_BUFFER health data
+  outputs: [], // Current outputs count
+  clients: 0, // Current count of connected clients (viewers+inputs+outputs)
+  upbytes: 0, // Total bytes uploaded since stream start
+  zerounix: 0, // Unix time in seconds of timestamp epoch (zero point), if known
+  lastms: 0, // Newest/last (currently) available timestamp in milliseconds
+  firstms: 0, // Oldest/first requestable timestamp in milliseconds
+  viewers: 0, // Current viewers count
+  inputs: 0, // Current inputs count
+  views: 0, // Total viewer session count since stream start
+  viewseconds: 0, // Total sum of seconds watched by viewers since stream start
+  downbytes: 0, // Total bytes downloaded since stream start
+  packsent: 0, // Total packets sent since stream start
+  packloss: 0, // Total packets lost since stream start
+  packretrans: 0, // Total packets retransmitted since stream start
+  tracks: 0, // Count of currently valid tracks in this stream
 };
 
 const activeTargets = []; //< Target RTMP uri's we should be pushing to
@@ -65,31 +66,31 @@ const shutdown = async () => {
     await mistApi.mistStopPush(activePushes[index]);
   }
   // Remove generated stream
-  if (config.isGeneratedTestStream){
+  if (config.isGeneratedTestStream) {
     await mistApi.mistDelStream(config.streamName);
   }
-}
-process.on('SIGTERM', async () => {
-  console.info('SIGTERM signal received.');
+};
+process.on("SIGTERM", async () => {
+  console.info("SIGTERM signal received.");
   await shutdown();
   process.exit(0);
 });
-process.on('SIGINT', async () => {
-  console.info('SIGINT signal received.');
+process.on("SIGINT", async () => {
+  console.info("SIGINT signal received.");
   await shutdown();
   process.exit(0);
 });
 
 // Why is this not part of nodejs by default?
 function sleep(ms) {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
 }
 
 // Overrides default user config
 function parseConfig() {
-  return new Promise(async resolve => {
+  return new Promise(async (resolve) => {
     config.streamName = settings.streamName;
     config.mistHost = settings.mistHost;
     config.auth = settings.auth;
@@ -98,9 +99,11 @@ function parseConfig() {
     config.sleepMS = settings.sleepMS;
     config.maxBandwidthMBPS = settings.maxBandwidthMBPS;
     config.initialPushes = settings.initialPushes;
-    config.pushLimit = Math.min(settings.initialPushes, settings.pushLimit);;
+    config.pushLimit = Math.min(settings.initialPushes, settings.pushLimit);
     config.pushHardLimit = settings.pushLimit;
     config.rtmpBase = settings.rtmpBase;
+    config.genWidth = settings.genWidth;
+    config.genHeight = settings.genHeight;
     resolve(config);
   });
 }
@@ -108,7 +111,7 @@ function parseConfig() {
 // Parses MistServer stream info object into tje streamInfo JSON object
 function parseStreamInfo(streamInfoRaw) {
   streamInfo = null;
-  return new Promise(async resolve => {
+  return new Promise(async (resolve) => {
     if (streamInfoRaw && streamInfoRaw[config.streamName]) {
       streamInfo = {
         status: streamInfoRaw[config.streamName][1],
@@ -127,17 +130,17 @@ function parseStreamInfo(streamInfoRaw) {
         packsent: streamInfoRaw[config.streamName][14],
         packloss: streamInfoRaw[config.streamName][15],
         packretrans: streamInfoRaw[config.streamName][16],
-        tracks: streamInfoRaw[config.streamName][17]
+        tracks: streamInfoRaw[config.streamName][17],
       };
     }
-    resolve('resolved');
+    resolve("resolved");
   });
 }
 
 // Parses MistServer push info list into the pushInfo JSON object
 function parsePushInfo(pushInfoRaw) {
   pushInfo = null;
-  return new Promise(async resolve => {
+  return new Promise(async (resolve) => {
     if (pushInfoRaw) {
       pushInfo = [];
       for (var index2 = 0; index2 < pushInfoRaw.length; index2++) {
@@ -145,38 +148,44 @@ function parsePushInfo(pushInfoRaw) {
           pushID: pushInfoRaw[index2][0],
           streamName: pushInfoRaw[index2][1],
           target: pushInfoRaw[index2][2],
-          stats: pushInfoRaw[index2][5] || pushInfoRaw[index2][4] //< Livepeer's version has no logs, but some older version do @ index 4. So try both
+          stats: pushInfoRaw[index2][5] || pushInfoRaw[index2][4], //< Livepeer's version has no logs, but some older version do @ index 4. So try both
         };
         pushInfo.push(newObj);
       }
     }
-    resolve('resolved');
+    resolve("resolved");
   });
 }
 
 // Refreshes set of active pushes we need to stop in case of an interrupt
 function refreshActivePushes() {
   activePushes = [];
-  return new Promise(async resolve => {
+  return new Promise(async (resolve) => {
     if (pushInfo) {
       for (var index2 = 0; index2 < pushInfo.length; index2++) {
         // Skip pushes unrelated to gratis
-        if (pushInfo[index2].streamName != config.streamName) { continue; }
+        if (pushInfo[index2].streamName != config.streamName) {
+          continue;
+        }
         activePushes.push(pushInfo[index2].pushID);
       }
     }
-    resolve('resolved');
+    resolve("resolved");
   });
 }
 
 // If there's an active push for the target, stop it
 function stopPushToTarget(target) {
-  return new Promise(async resolve => {
+  return new Promise(async (resolve) => {
     for (var index2 = 0; index2 < pushInfo.length; index2++) {
       // Skip pushes unrelated to gratis
-      if (pushInfo[index2].streamName != config.streamName) { continue; }
+      if (pushInfo[index2].streamName != config.streamName) {
+        continue;
+      }
       if (pushInfo[index2].target == target) {
-        console.log("Stopping push " + target + " with id " + pushInfo[index2].pushID);
+        console.log(
+          "Stopping push " + target + " with id " + pushInfo[index2].pushID
+        );
         await mistApi.mistStopPush(pushInfo[index2].pushID);
         resolve(true);
         return;
@@ -188,26 +197,38 @@ function stopPushToTarget(target) {
 
 // If we are using the generated stream, start it and wait for it to boot up
 function bootTestStream() {
-  return new Promise(async resolve => {
+  return new Promise(async (resolve) => {
     // Start one push in order to boot the stream
-    console.log("Starting push to " + inactiveTargets[0] + " to boot stream " + config.streamName);
+    console.log(
+      "Starting push to " +
+        inactiveTargets[0] +
+        " to boot stream " +
+        config.streamName
+    );
     await mistApi.mistAddPush(config.streamName, inactiveTargets[0]);
-    resolve('resolved');
+    resolve("resolved");
   });
 }
 
 // Wait for the input stream to become active
 function waitForInput() {
-  return new Promise(async resolve => {
+  return new Promise(async (resolve) => {
     {
       var mistStatsRaw = await mistApi.mistGetStreamInfo(config.streamName);
       while (true) {
-        console.log("Waiting for stream '" + config.streamName + "' to become active...");
+        console.log(
+          "Waiting for stream '" + config.streamName + "' to become active..."
+        );
         if (mistStatsRaw && mistStatsRaw[config.streamName]) {
           if (mistStatsRaw[config.streamName][1] != "Online") {
-            console.log("Stream '" + config.streamName + "' is " + mistStatsRaw[config.streamName][1]);
+            console.log(
+              "Stream '" +
+                config.streamName +
+                "' is " +
+                mistStatsRaw[config.streamName][1]
+            );
           } else {
-            resolve('resolved');
+            resolve("resolved");
             return;
           }
         }
@@ -219,49 +240,63 @@ function waitForInput() {
 }
 
 // Counts and prints push statistics for a specific target
-function printPushStats(target, active) {
+function printPushStats(target, active, elapsed, lastMB) {
   let uploadedMB = 0;
   let uploadMBPS = 0;
   if (pushInfo) {
     for (var index2 = 0; index2 < pushInfo.length; index2++) {
       // Skip pushes unrelated to gratis
-      if (pushInfo[index2].streamName != config.streamName) { continue; }
+      if (pushInfo[index2].streamName != config.streamName) {
+        continue;
+      }
       const altTarget = target.replace("+", " "); //< TMP
-      if (pushInfo[index2].target == target || pushInfo[index2].target == altTarget) {
+      if (
+        pushInfo[index2].target == target ||
+        pushInfo[index2].target == altTarget
+      ) {
         isFound = true;
+        // Total byte counter
         if (pushInfo[index2].stats) {
-          uploadedMB = parseInt(pushInfo[index2].stats["bytes"]) * 0.000001;
+          uploadedMB = parseInt(pushInfo[index2].stats["bytes"]) * 1e-6;
         }
-        if (isNaN(uploadedMB)){
+        if (isNaN(uploadedMB)) {
           uploadedMB = 0;
         }
-        // Only calculate mbps from mediatime for generated local test streams
-        if (pushInfo[index2].stats && config.isGeneratedTestStream) {
-          uploadMBPS = uploadedMB / parseInt(pushInfo[index2].stats["mediatime"] / 1000);
+        // Current bitrate
+        if (uploadedMB && lastMB) {
+          uploadMBPS = (uploadedMB - lastMB) / elapsed;
         }
         break;
       }
     }
   }
   // Only show calculated mbps from mediatime for generated local test streams
-  var mbpsString = "";
-  if (uploadMBPS) {
-    mbpsString = "(" + uploadMBPS.toFixed(2) + " MB/s) ";
-  }
+  var mbpsString = "(" + uploadMBPS.toFixed(2) + " MB/s) ";
   // Add inactive tag if the target is not in activeTargets
   let inactiveStr = active ? "" : " (inactive)";
-  console.log("streamed " + uploadedMB.toFixed(2) + " MB " + mbpsString + "to " + target + inactiveStr);
-  return uploadedMB;
+  console.log(
+    "streamed " +
+      uploadedMB.toFixed(2) +
+      " MB " +
+      mbpsString +
+      "to " +
+      target +
+      inactiveStr
+  );
+  return [uploadedMB, uploadMBPS];
 }
 
 // Makes sure pushes are started/stopped and prints a summary
 function managePushes(totalUpMBPS, averageMPBS, elapsed) {
-  return new Promise(async resolve => {
+  return new Promise(async (resolve) => {
     // Adjust pushLimit based on bandwidth usage and config
     if (totalUpMBPS > config.maxBandwidthMBPS && config.pushLimit > 1) {
       config.pushLimit = config.pushLimit - 1;
       console.log("Decreased limit of pushes to " + config.pushLimit);
-    } else if (totalUpMBPS + averageMPBS < config.maxBandwidthMBPS && config.pushLimit < config.pushHardLimit) {
+    } else if (
+      totalUpMBPS + averageMPBS < config.maxBandwidthMBPS &&
+      config.pushLimit < config.pushHardLimit
+    ) {
       config.pushLimit = config.pushLimit + 1;
       console.log("Increased limit of pushes to " + config.pushLimit);
     }
@@ -280,12 +315,17 @@ function managePushes(totalUpMBPS, averageMPBS, elapsed) {
 
     // Start any push in activeTargets which is not in pushInfo
     for (var index = 0; index < activeTargets.length; index++) {
-      if (!pushInfo) { break; }
+      if (!pushInfo) {
+        break;
+      }
       const thisTarget = activeTargets[index];
       let found = false;
       for (var index2 = 0; index2 < pushInfo.length; index2++) {
         const altTarget = thisTarget.replace("+", " "); //< TMP
-        if (thisTarget == pushInfo[index2].target || altTarget == pushInfo[index2].target) {
+        if (
+          thisTarget == pushInfo[index2].target ||
+          altTarget == pushInfo[index2].target
+        ) {
           found = true;
           break;
         }
@@ -300,7 +340,9 @@ function managePushes(totalUpMBPS, averageMPBS, elapsed) {
     if (pushInfo) {
       for (var index = 0; index < pushInfo.length; index++) {
         // Skip pushes unrelated to gratis
-        if (pushInfo[index].streamName != config.streamName) { continue; }
+        if (pushInfo[index].streamName != config.streamName) {
+          continue;
+        }
         // Check if its in activeTargets
         const thisTarget = pushInfo[index].target;
         let found = false;
@@ -316,13 +358,11 @@ function managePushes(totalUpMBPS, averageMPBS, elapsed) {
         }
       }
     }
-    resolve('resolved');
+    resolve("resolved");
   });
 }
 
-
 /// --- Main ---
-
 
 const run = async () => {
   const config = await parseConfig();
@@ -349,7 +389,10 @@ const run = async () => {
     config.isGeneratedTestStream = true;
     config.streamName = "videogen" + boot;
     console.log("Creating stream " + config.streamName);
-    await mistApi.mistAddStream(config.streamName);
+    await mistApi.mistAddStream(config.streamName, {
+      width: config.genWidth,
+      height: config.genHeight,
+    });
   }
 
   // Wait for the input stream to become available
@@ -369,15 +412,17 @@ const run = async () => {
     activeTargets.push(thisTarget);
     await mistApi.mistAddPush(config.streamName, thisTarget);
   }
-  
+
   // Run the main loop until someone kills the process
   let prevTime = new Date().valueOf();
+  const mbCounters = {};
   while (true) {
-    console.log('\n');
+    console.log("\n");
     var totalUpMB = 0;
+    var totalUpMBPS = 0;
     const now = new Date().valueOf();
-    const thisElapsed = (now - prevTime) / 1000;
-    const totalElapsed = (now - start) / 1000;
+    const thisElapsed = (now - prevTime) * 1e-3;
+    const totalElapsed = (now - start) * 1e-3;
     // Refresh data
     const mistStatsRaw = await mistApi.mistGetStreamInfo(config.streamName);
     const mistPushesRaw = await mistApi.mistGetPushes();
@@ -386,8 +431,13 @@ const run = async () => {
     await refreshActivePushes();
 
     // If the stream stopped existing, wait for it to become active again
-    if (!streamInfo || streamInfo.status != 'Online') {
-      console.log("Stream '" + config.streamName + "' is inactive. Manually check stream status in " + config.mistHost);
+    if (!streamInfo || streamInfo.status != "Online") {
+      console.log(
+        "Stream '" +
+          config.streamName +
+          "' is inactive. Manually check stream status in " +
+          config.mistHost
+      );
       prevTime = now;
       await sleep(config.sleepMS);
       continue;
@@ -395,18 +445,45 @@ const run = async () => {
     // Print program stats
     console.log("Running for " + totalElapsed.toFixed(1) + " seconds");
     // Print stream stats
-    console.log("Stream " + config.streamName + " is " + streamInfo.status + "\n");
+    console.log(
+      "Stream " + config.streamName + " is " + streamInfo.status + "\n"
+    );
     // Print push stats
     for (var idx = 0; idx < activeTargets.length; idx++) {
-      totalUpMB += printPushStats(activeTargets[idx], true);
+      const [thisMB, thisMPBS] = printPushStats(
+        activeTargets[idx],
+        true,
+        thisElapsed,
+        mbCounters[activeTargets[idx]]
+      );
+      mbCounters[activeTargets[idx]] = thisMB;
+      totalUpMB += thisMB;
+      totalUpMBPS += thisMPBS;
     }
     for (var idx = 0; idx < inactiveTargets.length; idx++) {
-      totalUpMB += printPushStats(inactiveTargets[idx], false);
+      const [thisMB, thisMPBS] = printPushStats(
+        inactiveTargets[idx],
+        false,
+        thisElapsed,
+        mbCounters[inactiveTargets[idx]]
+      );
+      mbCounters[inactiveTargets[idx]] = thisMB;
+      totalUpMB += thisMB;
+      totalUpMBPS += thisMPBS;
     }
     // Print summary stats
-    const totalUpMBPS = totalUpMB / totalElapsed;
     const averageMPBS = totalUpMBPS / config.pushLimit;
-    console.log("Uploaded " + totalUpMB.toFixed(2) + " MB (rate " + totalUpMBPS.toFixed(2) + "/" + config.maxBandwidthMBPS.toFixed(2) + " MB/s, averaging " + averageMPBS.toFixed(2) + " MB/s per stream)\n");
+    console.log(
+      "Uploaded " +
+        totalUpMB.toFixed(2) +
+        " MB (rate " +
+        totalUpMBPS.toFixed(2) +
+        "/" +
+        config.maxBandwidthMBPS.toFixed(2) +
+        " MB/s, averaging " +
+        averageMPBS.toFixed(2) +
+        " MB/s per stream)\n"
+    );
     // Check if any pushes need to be started or stopped
     await managePushes(totalUpMBPS, averageMPBS, thisElapsed);
 
@@ -415,7 +492,4 @@ const run = async () => {
   }
 };
 
-
 run();
-
-

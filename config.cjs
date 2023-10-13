@@ -13,6 +13,10 @@ config.maxBandwidthMBPS = 4.20;       // Will start/stop pushes to stay under th
 config.initialPushes = 2;             // Initial amount of pushes to start
 config.pushLimit = 10;                 // Max amount of total pushes to allow
 
+// When using a generated test stream, set it's properties here
+config.genWidth = 1920;
+config.genHeight = 1080;
+
 
 /// --- MistServer connection config ---
 
