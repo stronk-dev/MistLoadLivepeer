@@ -420,15 +420,16 @@ const run = async () => {
     console.log("\n");
     var totalUpMB = 0;
     var totalUpMBPS = 0;
-    const now = new Date().valueOf();
-    const thisElapsed = (now - prevTime) * 1e-3;
-    const totalElapsed = (now - start) * 1e-3;
     // Refresh data
     const mistStatsRaw = await mistApi.mistGetStreamInfo(config.streamName);
     const mistPushesRaw = await mistApi.mistGetPushes();
     await parseStreamInfo(mistStatsRaw);
     await parsePushInfo(mistPushesRaw);
     await refreshActivePushes();
+    // Elapsed time since last API calls
+    const now = new Date().valueOf();
+    const thisElapsed = (now - prevTime) * 1e-3;
+    const totalElapsed = (now - start) * 1e-3;
 
     // If the stream stopped existing, wait for it to become active again
     if (!streamInfo || streamInfo.status != "Online") {
