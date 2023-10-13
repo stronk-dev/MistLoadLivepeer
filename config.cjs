@@ -2,6 +2,7 @@ var config = {};
 
 // Most import variable to set - all pushes will be sent to this address
 // defaults to use the local MistServer instance using stream name 'live'
+// Gratis generates a random UUID and appends it to this base
 config.rtmpBase = "rtmp://localhost/live/live+"
 
 
@@ -11,9 +12,6 @@ config.sleepMS = 4000;                // MS between each cycle of checking strea
 config.maxBandwidthMBPS = 4.20;       // Will start/stop pushes to stay under this limit of bandwidth usage
 config.initialPushes = 2;             // Initial amount of pushes to start
 config.pushLimit = 10;                 // Max amount of total pushes to allow
-
-module.exports = config;
-
 
 
 /// --- MistServer connection config ---
@@ -33,3 +31,5 @@ config.auth = false;
 config.mistUname = "";
 // fill in password to your MistServer instance if auth == true
 config.mistPw = "";
+
+module.exports = config;
