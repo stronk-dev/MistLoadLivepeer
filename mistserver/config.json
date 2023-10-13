@@ -1,0 +1,73 @@
+{
+      "account":{
+        "test":{
+          "password":"098f6bcd4621d373cade4e832627b4f6"
+        }
+      },
+      "autopushes":null,
+      "config":{
+        "accesslog":"LOG",
+        "controller":{
+          "interface":null,
+          "port":null,
+          "username":null
+        },
+        "defaultStream":null,
+        "limits":null,
+        "prometheus":"",
+        "protocols":[
+          {
+            "connector":"DTSC"
+          }, {
+            "connector":"EBML"
+          }, {
+            "connector":"FLV"
+          }, {
+            "connector":"H264"
+          }, {
+            "connector":"HLS"
+          }, {
+            "connector":"HTTP"
+          }, {
+            "connector":"HTTPTS"
+          }, {
+            "connector":"JSON"
+          }, {
+            "connector":"MP4"
+          }, {
+            "connector":"RTMP"
+          }, {
+            "connector":"RTSP"
+          }, {
+            "connector":"SDP"
+          }, {
+            "connector":"TSRIST"
+          }, {
+            "connector":"TSSRT"
+          }, {
+            "connector":"WebRTC"
+          }
+        ],
+        "sessionInputMode":15,
+        "sessionOutputMode":15,
+        "sessionStreamInfoMode":1,
+        "sessionUnspecifiedMode":0,
+        "sessionViewerMode":14,
+        "tknMode":15,
+        "triggers":null,
+        "trustedproxy":[]
+      },
+      "extwriters":[
+        [
+          "s3", "livepeer-catalyst-uploader -t 2592000s", [
+            "s3", "s3+http", "s3+https", "ipfs"
+          ]
+        ]
+      ],
+      "push_settings":{
+        "maxspeed":0,
+        "wait":3
+      },
+      "streams":null,
+      "variables":null
+    }
